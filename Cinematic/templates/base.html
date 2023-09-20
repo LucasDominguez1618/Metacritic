@@ -3,5 +3,9 @@
 <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}" />
 <nav>
   <h1>Cinematic</h1>
-  <ul></ul>
+    <h1>{% block title %}Peliculas{% endblock %}</h1>
+
+    {% block content %} 
+    {% endblock %}
+  </ul>
 </nav>

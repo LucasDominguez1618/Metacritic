@@ -35,6 +35,11 @@ def create_app(test_config=None):
     from . import db
     db.init_app(app)
 
-    return app
+
+    from . import peliculas
+    app.register_blueprint(peliculas.bp)
+    app.add_url_rule('/', endpoint='index')
+
+    return app        
 
 
