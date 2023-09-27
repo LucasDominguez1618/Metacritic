@@ -14,27 +14,27 @@ def index():
     peliculas = db.execute(
         'SELECT *'
         ' FROM film '
-        ' ORDER BY film DESC'
+        ' ORDER BY title'
     ).fetchall()
     return render_template('peliculas/index.html', peliculas=peliculas)
 
-@bp.route('/create', methods=('GET'))
+@bp.route('/create', methods=(['GET']))
 
-def get_peliculas(id):
-    peliculas = get_db().execute(
+def get_pelicula(id):
+    pelicula = get_db().execute(
         'SELECT *'
-        ' FROM films'
+        ' FROM film'
         ' WHERE film_id = ?',
         (id,)
     ).fetchone()
 
-    if peliculas is None:
+    if pelicula is None:
         abort(404, f"Post id {id} doesn't exist.")
 
 
-    return peliculas
+    return pelicula
 
-@bp.route('/<int:id>/peliculas', methods=('GET'))
+@bp.route('/<int:id>/detalle', methods=(['GET']))
 def update(id):
-    peliculas = get_peliculas(id)
-    return render_template('peliculas', peliculas = peliculas)
+    pelicula = get_pelicula(id)
+    return render_template('detalle', pelicula = pelicula)

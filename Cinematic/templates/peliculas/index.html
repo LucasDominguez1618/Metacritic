@@ -1,0 +1,11 @@
+<ul>
+  {% for peli in peliculas %}
+  <article class="post">
+    <header>
+      <div>
+        <h1>{{ peli['title'] }} ({{ peli['release_year'] }})</h1>
+      </div>
+    </header>
+  </article>
+  {% endfor %}
+</ul>

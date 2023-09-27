@@ -1,26 +1,30 @@
 
 
 BEGIN TRANSACTION;
-CREATE TABLE IF NOT EXISTS "actor" (
+Drop table if EXISTS "actor";
+CREATE TABLE  "actor" (
 	"actor_id"	numeric NOT NULL,
 	"first_name"	VARCHAR(45) NOT NULL,
 	"last_name"	VARCHAR(45) NOT NULL,
 	"last_update"	TIMESTAMP NOT NULL,
 	PRIMARY KEY("actor_id")
 );
-CREATE TABLE IF NOT EXISTS "language" (
+Drop table if EXISTS "language";
+CREATE TABLE "language" (
 	"language_id"	SMALLINT NOT NULL,
 	"name"	CHAR(20) NOT NULL,
 	"last_update"	TIMESTAMP NOT NULL,
 	PRIMARY KEY("language_id")
 );
-CREATE TABLE IF NOT EXISTS "category" (
+Drop table if EXISTS "category";
+CREATE TABLE  "category" (
 	"category_id"	SMALLINT NOT NULL,
 	"name"	VARCHAR(25) NOT NULL,
 	"last_update"	TIMESTAMP NOT NULL,
 	PRIMARY KEY("category_id")
 );
-CREATE TABLE IF NOT EXISTS "film" (
+Drop table if EXISTS "film";
+CREATE TABLE  "film" (
 	"film_id"	int NOT NULL,
 	"title"	VARCHAR(255) NOT NULL,
 	"description"	BLOB SUB_TYPE TEXT DEFAULT NULL,
@@ -40,7 +44,8 @@ CREATE TABLE IF NOT EXISTS "film" (
 	CONSTRAINT "fk_film_language_original" FOREIGN KEY("original_language_id") REFERENCES "language"("language_id"),
 	PRIMARY KEY("film_id")
 );
-CREATE TABLE IF NOT EXISTS "film_actor" (
+Drop table if EXISTS "film_actor";
+CREATE TABLE "film_actor" (
 	"actor_id"	INT NOT NULL,
 	"film_id"	INT NOT NULL,
 	"last_update"	TIMESTAMP NOT NULL,
@@ -48,7 +53,8 @@ CREATE TABLE IF NOT EXISTS "film_actor" (
 	CONSTRAINT "fk_film_actor_film" FOREIGN KEY("film_id") REFERENCES "film"("film_id") ON DELETE NO ACTION ON UPDATE CASCADE,
 	CONSTRAINT "fk_film_actor_actor" FOREIGN KEY("actor_id") REFERENCES "actor"("actor_id") ON DELETE NO ACTION ON UPDATE CASCADE
 );
-CREATE TABLE IF NOT EXISTS "film_category" (
+Drop table if EXISTS "film_category";
+CREATE TABLE "film_category" (
 	"film_id"	INT NOT NULL,
 	"category_id"	SMALLINT NOT NULL,
 	"last_update"	TIMESTAMP NOT NULL,
@@ -7809,73 +7815,4 @@ CREATE TRIGGER film_category_trigger_au AFTER UPDATE ON film_category
  BEGIN
   UPDATE film_category SET last_update = DATETIME('NOW')  WHERE rowid = new.rowid;
  END;
-CREATE VIEW customer_list
-AS
-SELECT cu.customer_id AS ID,
-       cu.first_name||' '||cu.last_name AS name,
-       a.address AS address,
-       a.postal_code AS zip_code,
-       a.phone AS phone,
-       city.city AS city,
-       country.country AS country,
-       case when cu.active=1 then 'active' else '' end AS notes,
-       cu.store_id AS SID
-FROM customer AS cu JOIN address AS a ON cu.address_id = a.address_id JOIN city ON a.city_id = city.city_id
-    JOIN country ON city.country_id = country.country_id;
-CREATE VIEW film_list
-AS
-SELECT film.film_id AS FID,
-       film.title AS title,
-       film.description AS description,
-       category.name AS category,
-       film.rental_rate AS price,
-       film.length AS length,
-       film.rating AS rating,
-       actor.first_name||' '||actor.last_name AS actors
-FROM category LEFT JOIN film_category ON category.category_id = film_category.category_id LEFT JOIN film ON film_category.film_id = film.film_id
-        JOIN film_actor ON film.film_id = film_actor.film_id
-    JOIN actor ON film_actor.actor_id = actor.actor_id;
-CREATE VIEW staff_list
-AS
-SELECT s.staff_id AS ID,
-       s.first_name||' '||s.last_name AS name,
-       a.address AS address,
-       a.postal_code AS zip_code,
-       a.phone AS phone,
-       city.city AS city,
-       country.country AS country,
-       s.store_id AS SID
-FROM staff AS s JOIN address AS a ON s.address_id = a.address_id JOIN city ON a.city_id = city.city_id
-    JOIN country ON city.country_id = country.country_id;
-CREATE VIEW sales_by_store
-AS
-SELECT
-  s.store_id
- ,c.city||','||cy.country AS store
- ,m.first_name||' '||m.last_name AS manager
- ,SUM(p.amount) AS total_sales
-FROM payment AS p
-INNER JOIN rental AS r ON p.rental_id = r.rental_id
-INNER JOIN inventory AS i ON r.inventory_id = i.inventory_id
-INNER JOIN store AS s ON i.store_id = s.store_id
-INNER JOIN address AS a ON s.address_id = a.address_id
-INNER JOIN city AS c ON a.city_id = c.city_id
-INNER JOIN country AS cy ON c.country_id = cy.country_id
-INNER JOIN staff AS m ON s.manager_staff_id = m.staff_id
-GROUP BY  
-  s.store_id
-, c.city||','||cy.country
-, m.first_name||' '||m.last_name;
-CREATE VIEW sales_by_film_category
-AS
-SELECT
-c.name AS category
-, SUM(p.amount) AS total_sales
-FROM payment AS p
-INNER JOIN rental AS r ON p.rental_id = r.rental_id
-INNER JOIN inventory AS i ON r.inventory_id = i.inventory_id
-INNER JOIN film AS f ON i.film_id = f.film_id
-INNER JOIN film_category AS fc ON f.film_id = fc.film_id
-INNER JOIN category AS c ON fc.category_id = c.category_id
-GROUP BY c.name;
 COMMIT;
