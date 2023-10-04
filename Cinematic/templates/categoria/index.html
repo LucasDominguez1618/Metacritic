@@ -1,0 +1,11 @@
+<ul>
+  {% for categoria in categorias %}
+  <article class="post">
+    <header>
+      <div>
+        <h1>{{ categoria['name'] }}</h1>
+      </div>
+    </header>
+  </article>
+  {% endfor %}
+</ul>

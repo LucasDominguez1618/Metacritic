@@ -38,3 +38,9 @@ def get_pelicula(id):
 def update(id):
     pelicula = get_pelicula(id)
     return render_template('detalle', pelicula = pelicula)
+
+
+
+
+
+

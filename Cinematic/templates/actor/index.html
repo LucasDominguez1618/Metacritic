@@ -1,0 +1,11 @@
+<ul>
+  {% for actor in actores %}
+  <article class="post">
+    <header>
+      <div>
+        <h1>{{ actor['first_name'] }} {{ actor['last_name'] }}</h1>
+      </div>
+    </header>
+  </article>
+  {% endfor %}
+</ul>
