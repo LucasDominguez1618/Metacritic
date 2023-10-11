@@ -1,11 +1,12 @@
-<ul>
-  {% for peli in peliculas %}
-  <article class="post">
-    <header>
-      <div>
-        <h1>{{ peli['title'] }} ({{ peli['release_year'] }})</h1>
-      </div>
-    </header>
-  </article>
-  {% endfor %}
-</ul>
+{% extends 'base.html' %} {% block content %} {% for peli in peliculas %}
+
+<article class="post">
+  <header>
+    <div>
+      <a href="{{url_for ('peliculas.detalle', id =peli ['film_id'])}}">
+        <h1>{{ peli['title'] }} {{ peli['release_year'] }}</h1>
+      </a>
+    </div>
+  </header>
+</article>
+{% endfor %} {% endblock %}

@@ -1,0 +1,11 @@
+{%extends 'base.html'%} {% block content %}
+<header>
+  <h1>Categoria: {{movie_info ['categoria']}}</h1>
+  <h1>language: {{language_info ['idioma']}}</h1>
+  <h1>Año de lanzamiento: {{movie_info ['año_de_lanzamiento']}}</h1>
+  <h1>Actores:</h1>
+  {% for actor in actor_info %}
+  <h1>{{actor['nombre']}} {{actor['apellido']}}</h1>
+  {%endfor%}
+</header>
+{% endblock %}

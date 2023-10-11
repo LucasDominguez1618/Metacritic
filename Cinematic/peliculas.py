@@ -29,17 +29,48 @@ def get_pelicula(id):
     ).fetchone()
 
     if pelicula is None:
-        abort(404, f"Post id {id} doesn't exist.")
+        abort(404, f"Esa Pelicula {id} no existe.")
 
 
     return pelicula
 
-@bp.route('/<int:id>/detalle', methods=(['GET']))
-def update(id):
-    pelicula = get_pelicula(id)
-    return render_template('detalle', pelicula = pelicula)
+def get_movie(id):
+    movie = get_db().execute(
+    """ SELECT f.film_id,f.release_year as año_de_lanzamiento,
+    a.first_name,a.last_name,c.name as categoria FROM film f 
+    JOIN film_category fc ON f.film_id = fc.film_id
+    JOIN category c ON fc.category_id = c.category_id
+    JOIN film_actor fa ON f.film_id = fa.film_id
+    JOIN actor a ON fa.actor_id = a.actor_id  
+    WHERE f.film_id = ?""",(id,)
+    ).fetchone()
+    return movie
+def get_language(id):
+    language = get_db().execute(
+    """ SELECT f.film_id, l.name as idioma FROM film f 
+    JOIN language l ON f.language_id = l.language_id
+    WHERE f.film_id = ?""",(id,)
+    ).fetchone()
+    return language
 
 
+def get_actor(id):
+    actors = get_db().execute(
+    """ SELECT f.film_id, a.actor_id,a.first_name as nombre,a.last_name as apellido FROM film f     
+    JOIN film_actor fa ON f.film_id = fa.film_id
+    JOIN actor a ON fa.actor_id = a.actor_id  
+    WHERE f.film_id = ?""",(id,)
+    ).fetchall()
+
+    return actors
+
+
+@bp.route ("/detalle/<int:id>/")
+def detalle(id):
+    movie_info = get_movie(id)
+    actor_info = get_actor(id)
+    language_info = get_language(id)
+    return render_template ('peliculas/detalle.html',movie_info =movie_info, actor_info = actor_info,language_info = language_info)
 
 
 
