@@ -5,7 +5,9 @@
   <h1>Año de lanzamiento: {{movie_info ['año_de_lanzamiento']}}</h1>
   <h1>Actores:</h1>
   {% for actor in actor_info %}
+  <a href="{{url_for('peliculas.artistas',id = actor['actor_id'])}}">
   <h1>{{actor['nombre']}} {{actor['apellido']}}</h1>
+  </a>
   {%endfor%}
 </header>
 {% endblock %}

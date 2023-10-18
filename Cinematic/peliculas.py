@@ -71,7 +71,19 @@ def detalle(id):
     actor_info = get_actor(id)
     language_info = get_language(id)
     return render_template ('peliculas/detalle.html',movie_info =movie_info, actor_info = actor_info,language_info = language_info)
+@bp.route("/actores/<int:id>/")
+def artistas(id):
+    info_del_actor = get_actor_de_peliculas(id)
+    
+    return render_template ('peliculas/actores.html', info_del_actor = info_del_actor)
 
+def get_actor_de_peliculas(id):
+    actor_pelis = get_db().execute(
+    """ SELECT f.film_id, a.actor_id,f.title as peli,a.first_name,a.last_name FROM film f
+    JOIN film_actor fa ON f.film_id = fa.film_id
+    JOIN actor a on fa.actor_id = a.actor_id
+    WHERE a.actor_id = ?""",(id,)).fetchall()    
+    return actor_pelis
 
 
 

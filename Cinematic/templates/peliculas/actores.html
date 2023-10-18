@@ -1,0 +1,15 @@
+{% extends 'base.html' %}
+
+{% block header %}
+
+<h1> {% block title %} Peliculas del actor {% endblock %}</h1>
+
+{% endblock %}
+{% block content %}
+<p> Apariciones en peliculas </p>
+{% for peliculas in info_del_actor  %}
+    <a href="{{url_for ('peliculas.detalle', id =peliculas['film_id'])}}">
+    <p> {{peliculas['peli']}}</p>
+    
+    {% endfor %}
+{% endblock %}
