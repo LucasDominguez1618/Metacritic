@@ -1,12 +1,13 @@
 from flask import (
-    Blueprint, flash, g, redirect, render_template, request, url_for
+    Blueprint, flash, g, jsonify, redirect, render_template, request, url_for
 )
 from werkzeug.exceptions import abort
 
-from flaskr.auth import login_required
-from flaskr.db import get_db
+from Cinematic.db import get_db
 
-bp = Blueprint('actores', __name__,url_prefix="/actor/")
+bp = Blueprint('actor', __name__,url_prefix="/actor/")
+bpapi = Blueprint('api_actores', __name__, url_prefix="/api/actor")
+
 
 @bp.route('/')
 def index():
@@ -18,7 +19,18 @@ def index():
     ).fetchall()
     return render_template('actor/index.html', actores=actores)
 
-@bp.route('/create', methods=(['GET']))
+@bpapi.route('/')
+def index_api():
+    db = get_db()
+    actores = db.execute(
+        'SELECT *'
+        ' FROM actor '
+        ' ORDER BY first_name,last_name '
+    ).fetchall()
+    for actor in actores:
+        actor["url"] = url_for("api_actores.detalle_api", id=actor["actor_id"], _external=True)
+    
+    return jsonify(actores=actores)
 
 def get_actor(id):
     actor = get_db().execute(
@@ -34,22 +46,29 @@ def get_actor(id):
 
     return actor
 
-
-def get_actor(id):
-    actor = get_db().execute(
-    """ SELECT a.actor_id,a.first_name,a.last_name,c.name as categoria FROM film f 
-    JOIN film_category fc ON f.film_id = fc.film_id
-    JOIN category c ON fc.category_id = c.category_id
-    JOIN film_actor fa ON f.film_id = fa.film_id
-    JOIN actor a ON fa.actor_id = a.actor_id  
-    WHERE f.film_id = ?""",(id,)
-    ).fetchone()
-
-    return actor
-@bp.route ("/detalle/<int:id>/")
+@bp.route("/<int:id>/")
 def detalle(id):
-    actor_info = get_actor(id)
-    return render_template ('peliculas/detalle.html',actor_info =actor_info)
+    info_del_actor = get_actor(id)
+    apariciones = get_actor_de_peliculas(id)
+    
+    return render_template ('actor/detalle.html', info_del_actor = info_del_actor, apariciones=apariciones)
+
+@bpapi.route("/<int:id>/")
+def detalle_api(id):
+    info_del_actor = get_actor(id)
+    apariciones = get_actor_de_peliculas(id)
+    
+    return jsonify(info_del_actor = info_del_actor, apariciones=apariciones)
+
+def get_actor_de_peliculas(id):
+    actor_pelis = get_db().execute(
+    """ SELECT f.film_id, a.actor_id,f.title as peli,a.first_name,a.last_name FROM film f
+    JOIN film_actor fa ON f.film_id = fa.film_id
+    JOIN actor a on fa.actor_id = a.actor_id
+    WHERE a.actor_id = ?""",(id,)).fetchall()    
+    return actor_pelis
+
+
 
 
 

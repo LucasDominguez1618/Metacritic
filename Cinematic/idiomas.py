@@ -3,8 +3,7 @@ from flask import (
 )
 from werkzeug.exceptions import abort
 
-from flaskr.auth import login_required
-from flaskr.db import get_db
+from Cinematic.db import get_db
 
 bp = Blueprint('idiomas', __name__,url_prefix="/idioma/")
 

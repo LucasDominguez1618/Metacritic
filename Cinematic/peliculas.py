@@ -1,24 +1,35 @@
 from flask import (
-    Blueprint, flash, g, redirect, render_template, request, url_for
+    Blueprint, flash, g, jsonify, redirect, render_template, request, url_for
 )
 from werkzeug.exceptions import abort
 
-from flaskr.auth import login_required
-from flaskr.db import get_db
+from Cinematic.db import get_db
 
-bp = Blueprint('peliculas', __name__)
+bp = Blueprint('peliculas', __name__, url_prefix="/pelicula")
+bpapi = Blueprint('api_peliculas', __name__, url_prefix="/api/pelicula")
 
-@bp.route('/')
-def index():
+def get_lista_peliculas():
     db = get_db()
     peliculas = db.execute(
         'SELECT *'
         ' FROM film '
         ' ORDER BY title'
     ).fetchall()
+    return peliculas
+
+
+@bp.route('/')
+def index():
+    peliculas = get_lista_peliculas()
     return render_template('peliculas/index.html', peliculas=peliculas)
 
-@bp.route('/create', methods=(['GET']))
+@bpapi.route('/')
+def index_api():
+    peliculas = get_lista_peliculas()
+    for pelicula in peliculas:
+        pelicula["url"] = url_for("api_peliculas.detalle_api", id=pelicula["film_id"], _external=True)
+    return jsonify(peliculas=peliculas)
+
 
 def get_pelicula(id):
     pelicula = get_db().execute(
@@ -65,25 +76,19 @@ def get_actor(id):
     return actors
 
 
-@bp.route ("/detalle/<int:id>/")
+@bp.route ("/<int:id>/")
 def detalle(id):
     movie_info = get_movie(id)
     actor_info = get_actor(id)
     language_info = get_language(id)
     return render_template ('peliculas/detalle.html',movie_info =movie_info, actor_info = actor_info,language_info = language_info)
-@bp.route("/actores/<int:id>/")
-def artistas(id):
-    info_del_actor = get_actor_de_peliculas(id)
-    
-    return render_template ('peliculas/actores.html', info_del_actor = info_del_actor)
 
-def get_actor_de_peliculas(id):
-    actor_pelis = get_db().execute(
-    """ SELECT f.film_id, a.actor_id,f.title as peli,a.first_name,a.last_name FROM film f
-    JOIN film_actor fa ON f.film_id = fa.film_id
-    JOIN actor a on fa.actor_id = a.actor_id
-    WHERE a.actor_id = ?""",(id,)).fetchall()    
-    return actor_pelis
 
+@bpapi.route ("/<int:id>/")
+def detalle_api(id):
+    movie_info = get_movie(id)
+    actor_info = get_actor(id)
+    language_info = get_language(id)
+    return jsonify(movie_info =movie_info, actor_info = actor_info,language_info = language_info)
 
 
