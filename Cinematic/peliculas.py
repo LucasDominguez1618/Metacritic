@@ -11,8 +11,13 @@ bpapi = Blueprint('api_peliculas', __name__, url_prefix="/api/pelicula")
 def get_lista_peliculas():
     db = get_db()
     peliculas = db.execute(
-        'SELECT *'
-        ' FROM film '
+        'SELECT f.film_id,release_year as Anio_De_Lanzamiento,rating as edad_recomendada' 
+        ',title as pelicula,c.name as categoria'
+        ' FROM film f '
+        ' JOIN film_category fc'
+        ' ON f.film_id = fc.film_id'
+        ' JOIN category c'
+        ' ON fc.category_id = c.category_id'
         ' ORDER BY title'
     ).fetchall()
     return peliculas
@@ -33,7 +38,7 @@ def index_api():
 
 def get_pelicula(id):
     pelicula = get_db().execute(
-        'SELECT *'
+        'SELECT film_id,release_year,rating,title'
         ' FROM film'
         ' WHERE film_id = ?',
         (id,)
@@ -72,7 +77,9 @@ def get_actor(id):
     JOIN actor a ON fa.actor_id = a.actor_id  
     WHERE f.film_id = ?""",(id,)
     ).fetchall()
-
+    for actor in actors:
+        actor["url"] = url_for("api_actores.detalle_api", id=actor["actor_id"], _external=True)
+    
     return actors
 
 
