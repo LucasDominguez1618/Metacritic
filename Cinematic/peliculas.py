@@ -10,16 +10,16 @@ bpapi = Blueprint('api_peliculas', __name__, url_prefix="/api/pelicula")
 
 def get_lista_peliculas():
     db = get_db()
-    peliculas = db.execute(
-        'SELECT f.film_id,release_year as Anio_De_Lanzamiento,rating as edad_recomendada' 
-        ',title as pelicula,c.name as categoria'
+    db.execute(
+        'SELECT f.film_id,release_year ,rating ,title ,c.name '
         ' FROM film f '
         ' JOIN film_category fc'
         ' ON f.film_id = fc.film_id'
         ' JOIN category c'
         ' ON fc.category_id = c.category_id'
         ' ORDER BY title'
-    ).fetchall()
+    )
+    peliculas = db.fetchall()
     return peliculas
 
 
@@ -37,12 +37,14 @@ def index_api():
 
 
 def get_pelicula(id):
-    pelicula = get_db().execute(
+    db = get_db()
+    db.execute(
         'SELECT film_id,release_year,rating,title'
         ' FROM film'
-        ' WHERE film_id = ?',
+        ' WHERE film_id = %s',
         (id,)
-    ).fetchone()
+    )
+    pelicula=db.fetchone()
 
     if pelicula is None:
         abort(404, f"Esa Pelicula {id} no existe.")
@@ -51,32 +53,38 @@ def get_pelicula(id):
     return pelicula
 
 def get_movie(id):
-    movie = get_db().execute(
+    db = get_db()
+    db.execute(
     """ SELECT f.film_id,f.release_year as año_de_lanzamiento,
     a.first_name,a.last_name,c.name as categoria FROM film f 
     JOIN film_category fc ON f.film_id = fc.film_id
     JOIN category c ON fc.category_id = c.category_id
     JOIN film_actor fa ON f.film_id = fa.film_id
     JOIN actor a ON fa.actor_id = a.actor_id  
-    WHERE f.film_id = ?""",(id,)
-    ).fetchone()
+    WHERE f.film_id = %s""",(id,)
+    )
+    movie=db.fetchone()
     return movie
 def get_language(id):
-    language = get_db().execute(
+    db = get_db()
+    db.execute(
     """ SELECT f.film_id, l.name as idioma FROM film f 
     JOIN language l ON f.language_id = l.language_id
-    WHERE f.film_id = ?""",(id,)
-    ).fetchone()
+    WHERE f.film_id = %s""",(id,)
+    )
+    language= db.fetchone()
     return language
 
 
 def get_actor(id):
-    actors = get_db().execute(
+    db = get_db()
+    db.execute(
     """ SELECT f.film_id, a.actor_id,a.first_name as nombre,a.last_name as apellido FROM film f     
     JOIN film_actor fa ON f.film_id = fa.film_id
     JOIN actor a ON fa.actor_id = a.actor_id  
-    WHERE f.film_id = ?""",(id,)
-    ).fetchall()
+    WHERE f.film_id = %s""",(id,)
+    )
+    actors=db.fetchall()
     for actor in actors:
         actor["url"] = url_for("api_actores.detalle_api", id=actor["actor_id"], _external=True)
     

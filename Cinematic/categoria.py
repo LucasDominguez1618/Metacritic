@@ -10,23 +10,26 @@ bp = Blueprint('categorias', __name__,url_prefix="/categoria/")
 @bp.route('/')
 def index():
     db = get_db()
-    categorias = db.execute(
+    db.execute(
         'SELECT *'
         ' FROM category '
         ' ORDER BY name  '
-    ).fetchall()
+    )
+    categorias=db.fetchall()
     return render_template('categoria/index.html', categorias=categorias)
 
 @bp.route('/create', methods=(['GET']))
 
 def get_categoria(id):
-    categoria = get_db().execute(
+    db = get_db()
+    db.execute(
         'SELECT *'
         ' FROM film_category'
         'JOIN category'
-        ' WHERE category_id = ?',
+        ' WHERE category_id = %s',
         (id,)
-    ).fetchone()
+    )
+    categoria=db.fetchone()
 
     if categoria is None:
         abort(404, f"Post id {id} doesn't exist.")

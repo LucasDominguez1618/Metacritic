@@ -10,22 +10,25 @@ bp = Blueprint('idiomas', __name__,url_prefix="/idioma/")
 @bp.route('/')
 def index():
     db = get_db()
-    idioma = db.execute(
+    db.execute(
         'SELECT *'
         ' FROM language '
         ' ORDER BY name '
-    ).fetchall()
+    )
+    idioma= db.fetchall()
     return render_template('idioma/index.html', idioma=idioma)
 
 @bp.route('/create', methods=(['GET']))
 
 def get_idioma(id):
-    idioma = get_db().execute(
+    db = get_db()
+    db.execute(
         'SELECT *'
         ' FROM language'
-        ' WHERE language_id = ?',
+        ' WHERE language_id = %s',
         (id,)
-    ).fetchone()
+    )
+    idioma=db.fetchone()
 
     if idioma is None:
         abort(404, f"Post id {id} doesn't exist.")
